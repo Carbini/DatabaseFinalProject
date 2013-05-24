@@ -1,0 +1,73 @@
+CREATE TABLE MAILBOX(
+	MessageNo INT NOT NULL AUTO_INCREMENT,
+	Subject VARCHAR(30) NOT NULL,
+	DateTime DATETIME NOT NULL,
+	Sender VARCHAR(15) NOT NULL,
+	Receiver VARCHAR(15) NOT NULL,
+	Status ENUM('Unread', 'Read', 'Deleted') NOT NULL,
+	Text TEXT NOT NULL,
+	PRIMARY KEY(MessageNo),
+	FOREIGN KEY (Sender)		
+		REFERENCES USER(Username),
+	FOREIGN KEY (Receiver)		
+		REFERENCES USER(Username)
+);
+
+CREATE TABLE USER(
+	FullName VARCHAR(20) NOT NULL,
+	Username VARCHAR(15) NOT NULL,
+	Password VARCHAR(15) NOT NULL,
+	Status ENUM('Admin', 'User', 'Banned', 'Removed') NOT NULL,
+	Description VARCHAR(50),
+	Picture BLOB,
+	PRIMARY KEY(Username)
+);
+
+CREATE TABLE FORUM_GROUP(
+	GName VARCHAR(20) NOT NULL,
+	Description VARCHAR(50),
+	Picture BLOB,
+	Status ENUM('Pending', 'Approved') NOT NULL,
+	OwnerOf VARCHAR(20),
+	PRIMARY KEY(GName),
+	FOREIGN KEY (OwnerOf)		
+		REFERENCES USER(Username)
+);
+
+CREATE TABLE THREAD(
+	Title VARCHAR(20) NOT NULL,
+	GName VARCHAR(20) NOT NULL,
+	StartDateTime DATETIME NOT NULL,
+	Author VARCHAR(20) NOT NULL,
+	PRIMARY KEY(Title, GName),
+	FOREIGN KEY (GName)
+		REFERENCES FORUM_GROUP(GName),
+	FOREIGN KEY (Author)
+		REFERENCES USER(Username)
+);
+
+CREATE TABLE POST(
+	GName VARCHAR(20) NOT NULL,
+	Thread VARCHAR(20) NOT NULL,
+	PostNo INT NOT NULL,
+	Text TEXT NOT NULL,
+	StartDateTime DATETIME NOT NULL,
+	Author VARCHAR(20) NOT NULL,
+	PRIMARY KEY(PostNo, Thread, GName),
+	FOREIGN KEY (Author)
+		REFERENCES USER(Username),
+	FOREIGN KEY (Thread)
+		REFERENCES THREAD(Title),
+	FOREIGN KEY (GName)
+		REFERENCES THREAD(GName)
+);
+
+CREATE TABLE MemberOf(
+	GName VARCHAR(20) NOT NULL,
+	Username VARCHAR(20) NOT NULL,
+	Status ENUM('Pending', 'Approved') NOT NULL,
+	PRIMARY KEY(GName, Username)
+);
+
+INSERT INTO USER
+	VALUES ('Admin', 'Admin', 'Admin', 'Admin', 'Admin', NULL);
